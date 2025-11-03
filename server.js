@@ -76,7 +76,8 @@ app.post(
             //create and return JWT
             const payload = {
                 user: {
-                    id: user.id
+                    id: user.id,
+                    name: user.name
                 }
             };
 
@@ -135,7 +136,8 @@ app.post('/api/auth', [
             // Create a JWT payload
             const payload = {
                 user: {
-                    id: user.id
+                    id: user.id,
+                    name: user.name
                 }
             };
 
