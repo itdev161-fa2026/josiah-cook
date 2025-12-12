@@ -1,0 +1,23 @@
+.comment-section {
+    margin-top: 2rem;
+}
+
+.comment-section-title,
+.comments-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #111827;
+}
+
+.comment-login-hint,
+.no-comments,
+.login-to-comment {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+}
+
+.comment-list {
+    margin-top: 1rem;
+}

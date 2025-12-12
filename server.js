@@ -3,11 +3,14 @@ import connectDatabase from './config/db.js';
 import {check, validationResult } from 'express-validator';
 import User from './models/User.js';
 import Post from './models/Post.js';
+//Import comment schema 
+import Comment from './models/Comment.js'
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import auth from './middleware/auth.js';
 import cors from 'cors';
+
 
 // Load environment variables 
 dotenv.config();
@@ -318,7 +321,133 @@ app.delete("/api/posts/:id", auth, async (req, res) => {
 });
 
 
+/**
+ * @route POST /api/posts/:postId/comments
+ * @desc Create a new comment on a post
+ */
+app.post("/api/posts/:postId/comments",
+    [
+        auth,
+        check("body", "Comment body is required").not().isEmpty(),
+        check("body", "Comment must be 1-500 characters").isLength({min: 1, max: 500})
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
 
+        try {
+            const post = await Post.findById(req.params.postId);
+            if (!post) {
+                return res.status(404).json({ msg: "Post not found" });
+            }
+
+            const newComment = new Comment({
+                post: post._id,
+                user: req.user.id,
+                body: req.body.body
+            });
+
+            const comment = await newComment.save();
+            await comment.populate("user", "name");
+
+            res.json(comment);
+
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Server error");
+        }
+    }
+);
+
+/**
+ * @route   GET /api/posts/:postId/comments
+ * @desc    Get all comments for a specific post
+ */
+app.get("/api/posts/:postId/comments", async (req, res) => {
+    try {
+        const comments = await Comment.find({ post: req.params.postId })
+            .populate("user", "name")
+            .sort({ createDate: -1 }); // Sort by newest posts first
+
+        res.json(comments);
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error");
+    }
+});
+
+
+/**
+ * @route   PUT /api/comments/:id
+ * @desc    Update a comment (protected, owner only)
+ */
+app.put("/api/comments/:id",
+    [
+        auth,
+        check("body", "Comment body is required").not().isEmpty(),
+        check("body", "Comment must be 1-500 characters").isLength({ min: 1, max: 500 })
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        try {
+            const comment = await Comment.findById(req.params.id);
+
+            if (!comment) {
+                return res.status(404).json({ msg: "Comment not found" });
+            }
+
+            // Ownership check
+            if (comment.user.toString() !== req.user.id) {
+                return res.status(401).json({ msg: "User not authorized" });
+            }
+
+            comment.body = req.body.body;
+            await comment.save();
+
+            await comment.populate("user", "name");
+
+            res.json(comment);
+
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Server error");
+        }
+    }
+);
+
+/**
+ * @route   DELETE /api/comments/:id
+ * @desc    Delete a comment (protected, owner only)
+ */
+app.delete("/api/comments/:id", auth, async (req, res) => {
+    try {
+        const comment = await Comment.findById(req.params.id);
+
+        if (!comment) {
+            return res.status(404).json({ msg: "Comment not found" });
+        }
+
+        // Ownership check
+        if (comment.user.toString() !== req.user.id) {
+            return res.status(401).json({ msg: "User not authorized" });
+        }
+
+        await Comment.findByIdAndDelete(req.params.id);
+
+        res.json({ msg: "Comment removed" });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error");
+    }
+});
 
 // Connection listener
 app.listen(3000, () => console.log('Express server running on port 3000'));

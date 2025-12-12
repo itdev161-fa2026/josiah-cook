@@ -19,10 +19,6 @@ const PostCard = ({ post }) => {
           {post.body.substring(0, 150)}
           {post.body.length > 150 ? '...' : ''}
         </p>
-	  // Tip: to insert the arrow after "Read more", you can
-         // a.) enter the unicode escape code: {'\u2192'}, or
-         // b.) on Mac: type Control + Command + Space to open the character picker, search for arrow, or
-         // c.) on Windows: type Windows + . to open the emoji picker, search for arrow
         <span className="read-more">Read more →</span>
       </Link>
     </div>
