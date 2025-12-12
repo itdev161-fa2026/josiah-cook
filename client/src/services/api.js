@@ -109,3 +109,47 @@ export const deletePost = async (id) => {
     throw error;
   }
 };
+
+// Get comments for a post
+export const getComments = async (postId) => {
+  try {
+    const response = await api.get(`/posts/${postId}/comments`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    throw error;
+  }
+};
+
+// Add a new comment
+export const addComment = async (postId, body) => {
+  try {
+    const response = await api.post(`/posts/${postId}/comments`, { body });
+    return response.data;
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    throw error;
+  }
+};
+
+// Update an existing comment
+export const updateComment = async (commentId, body) => {
+  try {
+    const response = await api.put(`/comments/${commentId}`, { body });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating comment:', error);
+    throw error;
+  }
+};
+
+// Delete a comment
+export const deleteComment = async (commentId) => {
+  try {
+    const response = await api.delete(`/comments/${commentId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    throw error;
+  }
+};

@@ -1,0 +1,71 @@
+.comment-form {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+    color: #000;
+    background: #fafafa;
+}
+
+.comment-form textarea:focus {
+    border-color: #3b82f6;
+    /* same blue as buttons */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    outline: none;
+    background: white;
+}
+
+.input-error {
+    border-color: #e63946 !important;
+}
+
+.field-error {
+    color: #e63946;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: block;
+}
+
+.form-actions {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.submit-button,
+.cancel-button {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.2s ease;
+}
+
+/* Primary (Post, Update, Edit) */
+.submit-button {
+    background: #3b82f6;
+    color: white;
+}
+
+.submit-button:hover {
+    background: #2563eb;
+}
+
+/* Secondary (Cancel) */
+.cancel-button {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.cancel-button:hover {
+    background: #d1d5db;
+}

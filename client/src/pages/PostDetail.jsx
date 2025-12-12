@@ -1,7 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPostById, deletePost } from '../services/api';
+import { getPostById, deletePost, getComments, 
+        addComment, updateComment, deleteComment } from '../services/api';
 import { AuthContext } from '../context/authContext';
+import CommentForm from '../components/CommentForm';
+import CommentList from '../components/CommentList'
 import './PostDetail.css';
 
   const PostDetail = () => {
@@ -9,9 +12,12 @@ import './PostDetail.css';
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const [post, setPost] = useState(null);
+    const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadingComments, setLoadingComments] = useState(true);
     const [error, setError] = useState(null);
 
+    // Load post
     useEffect(() => {
       const fetchPost = async () => {
         try {
@@ -28,6 +34,23 @@ import './PostDetail.css';
       };
 
       fetchPost();
+    }, [id]);
+
+    // Load Comments
+    useEffect(() => {
+      const fetchComments = async () => {
+        try {
+          setLoadingComments(true);
+          const data = await getComments(id);
+          setComments(data);
+        } catch (err) {
+          console.error('Failed to load comments;', err);
+        } finally {
+          setLoadingComments(false);
+        }
+      };
+
+      fetchComments();
     }, [id]);
 
     const formatDate = (dateString) => {
@@ -55,6 +78,44 @@ import './PostDetail.css';
 
    // Check if current user owns the post
    const canModify = user && post && user.id === post.user._id;
+
+   // **Comment handlers**
+
+   // Add new comment
+   const handleAddComment = async (text) => {
+      try {
+        const newComment = await addComment(id, text);
+        setComments((prev) => [...prev, newComment]);
+      } catch (err) {
+        console.error('Error adding comment:', err);
+        alert('Failed to add comment. Please try again.');
+      }
+   };
+
+   // Update a comment
+   const handleUpdateComment = async (commentId, newText) => {
+      try {
+        const updated = await updateComment(commentId, newText);
+        setComments((prev) =>
+          prev.map((c) => (c._id === updated._id ? updated : c))
+        );
+      } catch (err) {
+        console.error('Error updating comment:', err);
+        alert('Failed to update comment.');
+      }
+   };
+
+   //Delete a comment
+   const handleDeleteComment = async (commentId) => {
+      try {
+        await deleteComment(commentId);
+        setComments((prev) => prev.filter((c) => c._id !== commentId));
+      } catch (err) {
+        console.error('Error deleting comment:', err);
+        alert('Failed to delete comment.');
+      }
+   };
+
 
     if (loading) {
       return <div className="container loading">Loading post...</div>;
@@ -102,6 +163,17 @@ import './PostDetail.css';
            </div>
          )}
         </article>
+
+        <section className="comments-section">
+          <CommentList
+            comments={comments}
+            currentUser={user}
+            loading={loadingComments}
+            onAdd={handleAddComment}
+            onEdit={handleUpdateComment}
+            onDelete={handleDeleteComment}
+            />
+        </section>
       </div>
     );
   };
